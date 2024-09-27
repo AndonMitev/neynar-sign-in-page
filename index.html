@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Neynar Authentication Callback</title>
+  </head>
+  <body>
+    <h1>Authentication in progress...</h1>
+    <p>
+      This window should close automatically. If it doesn't, you can close it
+      manually.
+    </p>
+
+    <script>
+      // Function to parse URL parameters
+      function getUrlParameter(name) {
+          name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+          var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+          var results = regex.exec(location.search);
+          return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      };
+
+      // Get the parameters from the URL
+      var code = getUrlParameter('code');
+      var state = getUrlParameter('state');
+      var status = getUrlParameter('status');
+
+      // Prepare the data to send to the extension
+      var authData = {
+          type: 'auth_complete',
+          payload: {
+              code: code,
+              state: state,
+              status: status
+          }
+      };
+
+      // Send the message to the opener (your extension)
+      if (window.opener) {
+          window.opener.postMessage(authData, '*');
+          // Close this window
+          window.close();
+      } else {
+          document.body.innerHTML += '<p>Error: Unable to communicate with the extension. Please close this window and try again.</p>';
+      }
+    </script>
+  </body>
+</html>
